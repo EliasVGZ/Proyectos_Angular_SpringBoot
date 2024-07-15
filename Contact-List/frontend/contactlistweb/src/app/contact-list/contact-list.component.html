@@ -1,0 +1,43 @@
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Asegúrate de incluir Bootstrap CSS también -->
+  </head>
+  
+  <h2 class="mb-5">Mis contactos</h2>
+  
+  <div class="text-end mb-3">
+      <button class="btn btn-primary" routerLink="/new">Nuevo contacto</button>
+  </div>
+  
+  <div class="table-responsive">
+    <table class="table table-hover shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Fecha Creación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Asegúrate de corregir la sintaxis de iteración según tu framework -->
+            @for(contact of contacts; track contact.id){
+                <tr>
+                    <td>{{ contact.id }}</td>
+                    <td>{{ contact.name }}</td>
+                    <td>{{ contact.email }}</td>
+                    <td>{{ contact.createdAt | date: 'dd/MM/yyyy  hh:mm a'}}</td>
+                    <td class="text-end">
+                        <button class="btn btn-info btn-sm" [routerLink]="[contact.id,'edit']">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" (click)="deleteContact(contact.id)">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+  </div>

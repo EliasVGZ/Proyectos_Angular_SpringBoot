@@ -1,0 +1,52 @@
+/* Estilos generales */
+body {
+    background-image: url('/assets/images/salon.jpeg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100vh;
+    color: white;
+    margin: 0; /* Asegura que no haya margen en el cuerpo */
+    padding: 0; /* Asegura que no haya relleno en el cuerpo */
+    display: flex; /* Usa flexbox para alinear contenido verticalmente */
+    flex-direction: column; /* Alinea los elementos en columna */
+}
+
+.header {
+    padding: 20px 0;
+    background-color: rgba(52, 58, 64, 0.7);
+}
+
+.header-title {
+    color: white;
+}
+
+/* Estilos adicionales */
+.main-content {
+    height: 100vh; /* Ajusta la altura al 100% del viewport */
+    background-image: url('/assets/images/salon.jpeg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: flex; /* Usa flexbox para centrar vertical y horizontalmente */
+}
+
+.main-title {
+    color: white;
+}
+
+.main-description {
+    color: white;
+}
+
+
+.btn-pedir-cita {
+    margin-top: 20px;
+}
+
+.footer {
+    padding: 20px 0;
+    background-color: rgba(52, 58, 64, 0.7);
+    color: white; /* Añade color de texto al pie de página */
+    text-align: center; /* Centra el texto en el pie de página */
+}

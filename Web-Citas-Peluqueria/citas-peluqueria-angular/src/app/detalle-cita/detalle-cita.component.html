@@ -1,0 +1,14 @@
+<div *ngIf="cita">
+  <h2>Detalles de la Cita</h2>
+  <p><strong>Nombre:</strong> {{ cita.nombre }}</p>
+  <p><strong>Teléfono:</strong> {{ cita.telefono }}</p>
+  <p><strong>Fecha:</strong> {{ cita.fecha }}</p>
+  <p><strong>Hora:</strong> {{ cita.hora }}</p>
+  <p><strong>Peluquero:</strong> {{ cita.peluquero.nombre }}</p>
+  <p><strong>Servicio:</strong> {{ cita.servicio.nombre }}</p>
+
+  <button class="btn btn-primary" (click)="irAPrincipal()">Aceptar</button>
+</div>
+<div *ngIf="!cita">
+  <p>Cargando datos de la cita...</p>
+</div>

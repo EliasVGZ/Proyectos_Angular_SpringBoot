@@ -1,0 +1,40 @@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">{{ contact ? 'Editar Contacto' : 'Nuevo Contacto' }}</h2>
+                </div>
+                <div class="card-body">
+                    @if(form){
+                        <form [formGroup]="form" (ngSubmit)="save()">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Nombre</label>
+                                <input id="name" type="text" placeholder="Nombre" class="form-control" formControlName="name">
+                                @if(form.get('name')?.hasError('required') && form.get('name')?.touched){
+                                    <div class="alert alert-danger mt-2">El nombre es obligatorio</div>
+                                }
+                            </div>
+                        
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input id="email" type="email" placeholder="Email" class="form-control" formControlName="email">
+                                @if(form.get('email')?.hasError('required') && form.get('email')?.touched){
+                                    <div class="alert alert-danger mt-2">El email es obligatorio</div>
+                                }
+                                @if(form.get('email')?.hasError('email') && form.get('email')?.touched){
+                                    <div class="alert alert-danger mt-2">El email es inválido</div>
+                                }
+                            </div>
+                        
+                            <div class="text-end">
+                                <button type="button" class="btn btn-secondary" routerLink="/">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
