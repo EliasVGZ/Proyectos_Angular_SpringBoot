@@ -5,8 +5,9 @@ export interface Citas{
     id: number;
     nombre: String;
     telefono: String;
-    fecha: Date;
-    hora: String;
+    fecha: String;
+    horaInicio: String;
+    horaFin: String;
     peluquero: Peluqueros;
     servicio: Servicios;
 }

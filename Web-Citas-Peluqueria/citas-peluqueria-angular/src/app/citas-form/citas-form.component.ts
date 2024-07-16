@@ -7,13 +7,27 @@ import { forkJoin } from 'rxjs/internal/observable/forkJoin';
 import { Peluqueros } from '../model/citas.peluqueros';
 import { Servicios } from '../model/citas.servicios';
 import { CommonModule } from '@angular/common';
+import { Observer } from 'rxjs';
+import { BsDatepickerConfig, BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 
 @Component({
   selector: 'app-citas-form',
   standalone: true,
-  imports: [RouterModule, ReactiveFormsModule, CommonModule],
+  imports: [RouterModule, ReactiveFormsModule, CommonModule, BsDatepickerModule],
+  providers: [
+    {
+      provide: BsDatepickerConfig,
+      useFactory: () => {
+        // Aquí puedes personalizar tu configuración
+        return Object.assign(new BsDatepickerConfig(), {
+          containerClass: 'theme-dark-blue',
+          dateInputFormat: 'DD/MM/YYYY'
+        });
+      }
+    }
+  ],
   templateUrl: './citas-form.component.html',
-  styleUrl: './citas-form.component.css'
+  styleUrls: ['./citas-form.component.css']
 })
 export default class CitasFormComponent implements OnInit{
 
@@ -22,11 +36,19 @@ export default class CitasFormComponent implements OnInit{
   private router = inject(Router); //Sirve para inyectar el router
   private route = inject(ActivatedRoute); //Sirve para inyectar la ruta
 
+
+
+
+
+
+
   form?: FormGroup;
   citas?: Citas;
   peluqueros: Peluqueros[] = [];
   servicios: Servicios[] = [];
   servicioSeleccionado?: Servicios;
+  horariosDisponibles: string[] = [];
+  fechaSeleccionada: Date = new Date();
 
 
 
@@ -82,7 +104,11 @@ export default class CitasFormComponent implements OnInit{
     console.log('Formulario enviado', this.form?.value);
     if (this.form?.valid) {
       // Extrae los valores actuales del formulario
-      const { id, nombre, telefono, fecha, hora, peluquero, servicio } = this.form?.value;
+      const { nombre, telefono, fecha, peluquero, servicio} = this.form?.value;
+
+      const horarioSeleccionado = this.form.value.hora;
+      const [horaInicio, horaFin] = horarioSeleccionado.split('-');
+
 
       const selectedPeluquero = this.getPeluqueroIdByName(peluquero);
       const selectedServicio = this.getServicioIdByName(servicio);
@@ -90,7 +116,8 @@ export default class CitasFormComponent implements OnInit{
       // Construye el objeto cita con la estructura deseada
       const cita = {
         fecha,
-        hora,
+        horaInicio,
+        horaFin,
         nombre,
         telefono,
         peluquero: {
@@ -130,6 +157,75 @@ export default class CitasFormComponent implements OnInit{
     const servicioNombre = event.target.value;// Se obtiene el valor del servicio seleccionado
     this.servicioSeleccionado = this.servicios.find(servicio => servicio.nombre === servicioNombre);
   }
+
+  // Método para manejar el cambio de fecha
+  onDateChange(event: Event): void {
+      const fechaSeleccionada = (event.target as HTMLInputElement).value;
+      this.fechaSeleccionada = new Date(fechaSeleccionada);
+  
+      // Llamar al método para cargar los horarios disponibles solo si hay una fecha seleccionada
+      if (fechaSeleccionada) {
+          this.obtenerHorariosDisponibles(fechaSeleccionada);
+      } else {
+          this.horariosDisponibles = []; // Limpiar horarios disponibles si no hay fecha seleccionada
+      }
+  }
+
+  updateHorariosDisponibles(fecha: string) {
+    const fechaObj = new Date(fecha); // Convert the fecha string to a Date object
+    
+    // Generar todos los horarios para el día
+    const horarios = this.generarHorarios();
+    // Obtener los horarios ocupados para la fecha proporcionada
+    const horariosDisponibles = this.obtenerHorariosDisponibles(fecha); // Pass the Date object to the function
+    
+  }
+  
+  // Ejemplo de función para obtener horarios reservados (simulado)
+  obtenerHorariosDisponibles(fecha: string): void {
+    const observer: Observer<string[]> = {
+      next: (horarios: string[]) => {
+        this.horariosDisponibles = horarios;
+      },
+      error: (error) => {
+        console.error('Error al obtener horarios disponibles:', error);
+      },
+      complete: () => {
+        console.log('Obtención de horarios completada');
+      }
+    };
+
+    this.citasService.getHorariosDisponibles(fecha).subscribe(observer);
+  }
+
+  
+
+   generarHorarios(): string[] {
+    const horarios: string[] = [];
+    let start = 8 * 60; // 8:00 AM en minutos
+    const end = 18 * 60; // 6:00 PM en minutos
+  
+    while (start < end) {
+      const hours = Math.floor(start / 60);
+      const minutes = start % 60;
+  
+      const formattedStart = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      
+      start += 30;
+      
+      const endHours = Math.floor(start / 60);
+      const endMinutes = start % 60;
+  
+      const formattedEnd = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+  
+      horarios.push(`${formattedStart}-${formattedEnd}`);
+    }
+  
+    return horarios;
+  }
+
+  
+
 
   getPeluqueroIdByName(nombre: string): number | undefined {
     const peluquero = this.peluqueros.find(p => p.nombre === nombre);

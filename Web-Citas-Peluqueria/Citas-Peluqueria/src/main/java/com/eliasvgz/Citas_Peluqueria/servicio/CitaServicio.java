@@ -4,7 +4,15 @@ package com.eliasvgz.Citas_Peluqueria.servicio;
 import com.eliasvgz.Citas_Peluqueria.models.Cita;
 import com.eliasvgz.Citas_Peluqueria.repository.CitaRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -35,6 +43,11 @@ public class CitaServicio {
     //TODO Borrar cita
     public void borrarCita(Long id){
         citaRepository.deleteById(id);
+    }
+
+    //TODO Listar citas por fecha
+    public List<Cita> obtenerReservasPorFecha(LocalDate fecha) {
+        return citaRepository.findByFecha(fecha);
     }
 
 

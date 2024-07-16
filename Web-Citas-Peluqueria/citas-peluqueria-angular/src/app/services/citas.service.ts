@@ -11,6 +11,7 @@ import { Observable } from 'rxjs';
 export class CitasService {
 
   private http = inject(HttpClient); // Esto sirve para inyectar el servicio HttpClient
+  private baseUrl = 'http://localhost:8080/api/citas';
 
 
   list() {
@@ -50,6 +51,13 @@ export class CitasService {
   //Obtenenr todos los peluqueros
   getAllPeluqueros() {
     return this.http.get<Peluqueros []>('http://localhost:8080/api/peluqueros');
+  }
+
+  //Obtener los horarios disponibles
+  getHorariosDisponibles(fecha: string): Observable<string[]> {
+
+    const url = `${this.baseUrl}/horarios-disponibles?fecha=${fecha}`;
+    return this.http.get<string[]>(url);
   }
   
 

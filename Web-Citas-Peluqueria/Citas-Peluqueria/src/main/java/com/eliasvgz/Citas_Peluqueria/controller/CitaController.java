@@ -9,13 +9,19 @@ import com.eliasvgz.Citas_Peluqueria.servicio.ServicioService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/citas")
-@CrossOrigin //Permite que se pueda acceder a la API desde cualquier origen
+@CrossOrigin(origins = "http://localhost:4200") //Permite que se pueda acceder a la API desde cualquier origen
 @AllArgsConstructor
 public class CitaController {
 
@@ -54,4 +60,60 @@ public class CitaController {
     public void borrarCita(@PathVariable Long id) {
         citaServicio.borrarCita(id);
     }
+
+
+    // Buscar por fecha
+    //Todo buscar por fecha
+    @GetMapping("/horarios-disponibles")
+    public ResponseEntity<List<String>> obtenerHorariosDisponibles(@RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        List<Cita> reservas = citaServicio.obtenerReservasPorFecha(fecha);
+        List<String> horariosDisponibles = generarHorariosDisponibles(reservas);
+        return ResponseEntity.ok(horariosDisponibles);
+    }
+
+    private List<String> generarHorariosDisponibles(List<Cita> reservas) {
+        List<String> horariosDisponibles = new ArrayList<>();
+        LocalTime inicio = LocalTime.of(8, 0); // 8:00 AM
+        LocalTime fin = LocalTime.of(18, 0);   // 6:00 PM
+        int intervaloMinutos = 30;
+
+        while (inicio.plusMinutes(intervaloMinutos).isBefore(fin.plusMinutes(intervaloMinutos))) {// Mientras la hora de inicio + 30 minutos sea antes de las 6:00 PM
+            LocalTime horaInicio = inicio;
+            LocalTime horaFin = inicio.plusMinutes(intervaloMinutos);
+
+            boolean ocupado = reservas.stream()// Verifica si la hora está ocupada
+                    .anyMatch(r -> {// Si alguna reserva cumple con la condición, entonces la hora está ocupada
+                        try {
+                            LocalTime reservaInicio = r.getHoraInicioAsLocalTime();
+                            LocalTime reservaFin = r.getHoraFinalAsLocalTime();
+                            return reservaInicio.isBefore(horaFin) && reservaFin.isAfter(horaInicio);
+                        } catch (Exception e) {
+                            return false; // Maneja cualquier excepción y considera el horario como no ocupado
+                        }
+                    });
+
+            if (!ocupado) {// Si la hora no está ocupada, se agrega a la lista de horarios disponibles
+                horariosDisponibles.add(String.format("%02d:%02d-%02d:%02d",// Formato de la hora: 08:00-08:30
+                        horaInicio.getHour(), horaInicio.getMinute(),
+                        horaFin.getHour(), horaFin.getMinute()));
+            }
+
+            inicio = inicio.plusMinutes(intervaloMinutos);
+        }
+
+        return horariosDisponibles;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

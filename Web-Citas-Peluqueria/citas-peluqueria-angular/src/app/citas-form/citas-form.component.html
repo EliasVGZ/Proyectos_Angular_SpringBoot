@@ -1,66 +1,77 @@
 <div class="container">
-    <h1>Pedir Cita</h1>
-    <form (ngSubmit)="pedirCita()" [formGroup]="form!">
+  <h1>Pedir Cita</h1>
+  <form (ngSubmit)="pedirCita()" [formGroup]="form!">
       <div class="card-body">
-        @if(form){
-          <div class="form-group">
-            <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" name="nombre" placeholder="Nombre" class="form-control" formControlName="nombre">
-            @if(form.get('nombre')?.hasError('required') && form.get('nombre')?.touched){
-              <div class="alert alert-danger mt-2">El nombre es obligatorio</div>
+          @if(form){
+              <div class="form-group">
+                  <label for="nombre">Nombre:</label>
+                  <input type="text" id="nombre" name="nombre" placeholder="Nombre" class="form-control" formControlName="nombre">
+                  @if(form.get('nombre')?.hasError('required') && form.get('nombre')?.touched){
+                  <div class="alert alert-danger mt-2">El nombre es obligatorio</div>
+                  }
+              </div>
+              <div class="form-group">
+                  <label for="telefono">Teléfono:</label>
+                  <input type="tel" id="telefono" name="telefono" placeholder="Teléfono" class="form-control" formControlName="telefono">
+                  @if(form.get('telefono')?.hasError('required') && form.get('telefono')?.touched){
+                  <div class="alert alert-danger mt-2">El teléfono es requerido</div>
+                  }
+                  @if(form.get('telefono')?.hasError('pattern') && form.get('telefono')?.touched){
+                  <div class="alert alert-danger mt-2">El teléfono debe ser numérico</div>
+                  }
+                  @if((form.get('telefono')?.hasError('minlength') || form.get('telefono')?.hasError('maxlength')) && form.get('telefono')?.touched){
+                  <div class="alert alert-danger mt-2">El teléfono debe tener 9 dígitos</div>
+                  }
+              </div>
+              <div class="form-group">
+                  <label for="peluquero">Peluquero:</label>
+                  <select id="peluquero" name="peluquero" class="form-control" formControlName="peluquero">
+                      <option *ngFor="let peluquero of peluqueros; trackBy: trackByFn" [value]="peluquero.nombre">{{peluquero.nombre}}</option>
+                  </select>
+              </div>
+              <div class="form-group">
+                  <label for="servicio">Servicio:</label>
+                  <select id="servicio" name="servicio" class="form-control" formControlName="servicio" (change)="onServicioChange($event)">
+                      <option *ngFor="let servicio of servicios; trackBy: trackByFn" [value]="servicio.nombre">{{servicio.nombre}}</option>
+                      @if(form.get('servicio')?.hasError('required') && form.get('servicio')?.touched){
+                      <div class="alert alert-danger mt-2">Debes elegir algún servicio.</div>
+                      }
+                  </select>
+              </div>
+              <div class="form-group" *ngIf="servicioSeleccionado">
+                  <label>Precio:</label>
+                  <span>{{ servicioSeleccionado.precio | currency }}</span>
+              </div>
+
+
+              <div class="form-group">
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" name="fecha" class="form-control" formControlName="fecha" (change)="onDateChange($event)">
+            </div>
+            <div class="horarios-container">
+                <!-- Mensaje de error si no hay horarios disponibles -->
+                <div *ngIf="horariosDisponibles.length === 0" class="alert alert-warning mt-2">No hay horarios disponibles para la fecha seleccionada.</div>
+            
+                <!-- Mensaje de error fuera del bucle *ngFor -->
+                @if(form.get('hora')?.hasError('required') && form.get('hora')?.touched){
+
+                    <div class="alert alert-danger mt-2">Debes elegir un horario.</div>
+                }
+                
+                
+                <!-- Radios dentro del bucle *ngFor -->
+                <div class="horario-card" *ngFor="let horario of horariosDisponibles">
+                    <input type="radio" id="{{horario}}" name="hora" [value]="horario" formControlName="hora">
+                    <label for="{{horario}}">{{horario}}</label>
+                </div>
+            </div>
+            
+            
           }
-          </div>
-          <div class="form-group">
-            <label for="telefono">Teléfono:</label>
-            <input type="tel" id="telefono" name="telefono" placeholder="Teléfono" class="form-control" formControlName="telefono">
-            @if(form.get('telefono')?.hasError('required') && form.get('telefono')?.touched){
-              <div class="alert alert-danger mt-2">El teléfono es requerido</div>
-            }
-            @if(form.get('telefono')?.hasError('pattern') && form.get('telefono')?.touched){
-              <div class="alert alert-danger mt-2">El teléfono debe ser numérico</div>
-            }
-            @if((form.get('telefono')?.hasError('minlength') || form.get('telefono')?.hasError('maxlength')) && form.get('telefono')?.touched){
-              <div class="alert alert-danger mt-2">El teléfono debe tener 9 dígitos</div>
-            }
-          </div>
-          <div class="form-group">
-            <label for="peluquero">Peluquero:</label>
-            <select id="peluquero" name="peluquero" class="form-control" formControlName="peluquero">
-              <option *ngFor="let peluquero of peluqueros; trackBy: trackByFn" [value]="peluquero.nombre">{{peluquero.nombre}}</option>
-            </select>
-          </div>
-    
-    
-          <div class="form-group">
-            <label for="servicio">Servicio:</label>
-            <select id="servicio" name="servicio" class="form-control" formControlName="servicio" (change)="onServicioChange($event)">
-              <option *ngFor="let servicio of servicios; trackBy: trackByFn" [value]="servicio.nombre">{{servicio.nombre}}</option>
-              @if(form.get('servicio')?.hasError('required') && form.get('servicio')?.touched){
-                <div class="alert alert-danger mt-2">Debes elegir algún servicio.</div>
-              }
-            </select>
-          </div>
-    
-    
-          <div class="form-group" *ngIf="servicioSeleccionado">
-          <label>Precio:</label>
-          <span>{{ servicioSeleccionado.precio | currency }}</span>
-        </div>
-          
-          <div class="form-group">
-            <label for="fecha">Fecha:</label>
-            <input type="date" id="fecha" name="fecha" class="form-control" formControlName="fecha">
-          </div>
-          <div class="form-group">
-            <label for="hora">Hora:</label>
-            <input type="time" id="hora" name="hora" class="form-control" formControlName="hora">
-          </div>
-        }
       </div>
       <div class="text-end">
-        <button type="button" class="btn btn-secondary" routerLink="/">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Guardar</button>
+          <button type="button" class="btn btn-secondary" routerLink="/">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
       </div>
-    </form>
-  </div>
-  
+  </form>
+</div>
